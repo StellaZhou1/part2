@@ -14,7 +14,11 @@ const Country = ({country}) => {
   </div>)
 }
 
-const CountriesToShow = ({inputText,allCountries}) => {
+const CountriesToShow = ({inputText,allCountries,countryToDisplay,setCountryToDisplay}) => {
+  const handleShowClick = ({country})=> {
+    return ()=> {
+      setCountryToDisplay([country])}
+  }
   const countries=allCountries.filter(country => 
     {
       const nameLowercase=country.name.toLowerCase()
@@ -27,17 +31,29 @@ const CountriesToShow = ({inputText,allCountries}) => {
     return <Country country={countries[0]}/>
   }
   else{
-    return(<div>
-    {countries.map(country=><div key={country.name}>{country.name} </div>)}
-    </div>)
+    if (countryToDisplay.length===0){
+      return(<div>
+      {countries.map(country=><div key={country.name}>{country.name} 
+      <button type='button' onClick={handleShowClick({country})}>show</button></div>)}
+      </div>)
+    }
+    else{
+      return(<div>
+      {countries.map(country=><div key={country.name}>{country.name} <button type='button' onClick={handleShowClick({country})}>show</button></div>)}
+      <Country country={countryToDisplay[0]}/>
+      </div>)
+    }
+
   }
 }
 
 const App = () => {
   const [inputText,setInputText]=useState('')
   const [allCountries,setAllCountries]=useState([])
+  const [countryToDisplay,setCountryToDisplay]=useState([])
   const handleInputChange = (event) => {
     setInputText(event.target.value)
+    setCountryToDisplay([])
   }
   const hook = ()=> {
     const promise=axios.get('https://restcountries.com/v2/all')
@@ -49,7 +65,7 @@ const App = () => {
   <form>
       <div>find countries 
         <input value={inputText} onChange={handleInputChange}/>
-        <CountriesToShow inputText={inputText} allCountries={allCountries}/>
+        <CountriesToShow inputText={inputText} allCountries={allCountries} setCountryToDisplay={setCountryToDisplay} countryToDisplay={countryToDisplay}/>
       </div>
     </form>)
 }
