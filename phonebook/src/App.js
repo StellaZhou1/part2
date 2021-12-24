@@ -20,12 +20,19 @@ const PersonForm = ({persons,newName,newNumber,setPersons,setNewName,setNewNumbe
 
   const addPerson = (event) => {
     event.preventDefault()
-    const personToAdd=persons.find((person)=>person.name===newName)
-    if (personToAdd){
-      window.alert(`${newName} is already added to phonebook`)
+    const personToChange=persons.find((person)=>person.name===newName)
+    const newPerson = {
+      name: newName,
+      number:newNumber
+    }
+    const confirmation=window.confirm(newName+ ' is already added to phonebook, replace the old number with a new one?')
+    if(confirmation){
+      personService.update(personToChange,newPerson)
+      .then(changedPerson=>{setPersons(persons.map(p => changedPerson.id !== p.id ? p : changedPerson))
+      setNewName('')
+      setNewNumber('')})
     }
     else{
-      const newPerson ={name:newName,number:newNumber}
       personService.create(newPerson).then(returnedPerson =>{
         setPersons(persons.concat(returnedPerson))
         setNewName('')
