@@ -1,5 +1,6 @@
 import React, { useState,useEffect } from 'react'
 import axios from 'axios'
+import * as personService from './services/persons'
 
 const Filter = ({newFilter,setNewFilter}) => {
   const handleFilterChange = (event) => {
@@ -25,12 +26,13 @@ const PersonForm = ({persons,newName,newNumber,setPersons,setNewName,setNewNumbe
     }
     else{
       const newPerson ={name:newName,number:newNumber}
-      setPersons(persons.concat(newPerson))
-      setNewName("")
-      setNewNumber("")
+      personService.create(newPerson).then(returnedPerson =>{
+        setPersons(persons.concat(returnedPerson))
+        setNewName('')
+        setNewNumber('')
+        })
     }
   }
-
   return (<form>
     <div>name: <input value={newName} onChange={handleNameChange}/></div>
     <div>number: <input value={newNumber} onChange={handleNumberChange}/></div>
@@ -40,11 +42,27 @@ const PersonForm = ({persons,newName,newNumber,setPersons,setNewName,setNewNumbe
   </form>)
 }
 
+const deletePerson = (personToDelete,persons,setPersons)=> {
+  let confirmation=window.confirm(`Delete ${personToDelete.name}?`)
+  if (confirmation)
+  {
+    personService.deletePerson(personToDelete)
+    .then(deletedPerson=>{
+    setPersons(persons.filter(p => {return p.id!==personToDelete.id}))
+  })
+  }
+  else
+  {
+    console.log("cancel")
+  }
+}
+
 const Persons = ({persons,newFilter,setPersons}) => {
   const personsToShow = persons.filter(person=>{
     return person.name.toLowerCase().includes(newFilter.toLowerCase())})
   return <div>
-    {personsToShow.map(person=><div key={person.name}>{person.name} {person.number}</div>)}
+    {personsToShow.map(person=><div key={person.name}>{person.name} {person.number}
+      <button type="button" onClick={()=>deletePerson(person,persons,setPersons)}>delete</button></div>)}
   </div>
 }
 
